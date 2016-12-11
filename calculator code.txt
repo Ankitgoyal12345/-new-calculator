@@ -1,0 +1,270 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.event.ActionListener;
+public class Calc {
+    private JFrame f;
+    private JPanel p,q;
+    private JButton buttons[];
+    private JLabel lab;
+    private JTextField textField;
+    private Integer op1[]=new Integer[30];
+    private Integer op2[]=new Integer[30];
+    private String opr;
+    private String op;
+    
+    public Calc(){
+        gui();
+    }
+    
+    public void gui(){
+        f=new JFrame("calculator");
+        f.setBounds(300,50,700,700);
+        
+        q=new JPanel(new GridBagLayout());
+        p=new JPanel(new GridBagLayout());
+        
+        f.add(q,BorderLayout.NORTH);
+        f.add(p,BorderLayout.CENTER);
+        
+        p.setBackground(Color.BLUE);
+        q.setBackground(Color.GREEN);
+        
+        textField=new JTextField(30);
+        textField.setFont(new java.awt.Font("Arial",Font.BOLD,22));
+        textField.setForeground(Color.RED);
+        textField.setBackground(Color.YELLOW);
+        q.add(textField);
+        
+
+        f.setVisible(true);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        /*SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run(){
+                textField.requestFocusInWindow();
+            }
+        });*/
+    }
+    public void button(){
+        buttons=new JButton[18];
+        String[] names={"7","8","9","4","5","6","1","2","3","0",
+                         ".","DEL","*","/","+","-","=","CLR"};
+        for(int i=0;i<buttons.length;i++){
+            buttons[i]=new JButton(names[i]);
+        }
+  
+        GridBagConstraints c= new GridBagConstraints();
+        
+        c.insets=new Insets(5,5,5,5);
+        int j=0,k=0;
+        for(int i=0;i<12;i++){
+            c.gridx=j;
+            j++;
+            if(j>2){
+                j=0;
+            }
+            if((i>=3)&&(i%3==0)){
+                k++;
+            }
+            
+            c.gridy=k;
+            p.add(buttons[i],c);
+        
+        }
+         j=3;
+         k=0;
+        for(int i=12;i<18;i++){
+            c.gridx=j;
+            j++;
+            if(j>4){
+                j=3;
+            }
+            if((i>=14)&&(i%2==0)){
+                k++;
+            }
+            c.gridy=k;
+            p.add(buttons[i],c);
+        }
+    }
+
+    public void action(){
+        int j=0;
+        int i=0;
+        int k=0;
+        for(i=0;i<16;i++){
+            if(i==11){
+                i=12;
+            }
+            buttons[i].addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e){
+                    JButton jb = (JButton)e.getSource();
+                    String b=String.valueOf(textField.getText());
+                    String a=String.valueOf(jb.getText());
+                    b=b+a;
+                    textField.setText(b);
+                }
+            });
+        }
+        buttons[11].addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e){
+                    String q=String.valueOf(textField.getText());
+                    String w=removeLastChar(q);
+                        textField.setText(w);
+                        
+                }
+                
+            });
+            
+            
+        buttons[17].addActionListener(new ActionListener(){
+           public void actionPerformed(ActionEvent e){
+               textField.setText(null);
+           }
+            
+        });
+        buttons[16].addActionListener(new ActionListener(){
+           public void actionPerformed(ActionEvent e){
+               String s=String.valueOf(textField.getText());
+               findval(s);
+               
+            }
+        });
+        
+        
+    }
+    public static String removeLastChar(String s1){
+            return s1.substring(0,s1.length()-1);
+    }
+    
+    public static void main(String[] args){
+        Calc first=new Calc();
+        first.button();
+        first.action();
+        
+    }
+    String myArray[];
+    
+   public void findval(String s){
+        boolean first=true;
+        int j=0,k=0,count=-1;
+        double a=0,b=0;
+        myArray=new String[61];
+        
+        for(k=0;k<s.length();k++){
+            myArray[k]="";
+        }
+        for(k=0;k<s.length();k++){
+            char ch=s.charAt(k);
+            if(ch=='+'||ch=='-'||ch=='*'||ch=='/'){
+                first=false;
+                count=count+2;
+                j++;
+            }
+               
+            if(first){
+                myArray[j]=myArray[j]+ch;
+            }
+            if(first==false){
+                myArray[j]=myArray[j]+ch;
+                first=true;
+                j++;
+            }
+
+        }
+        
+        count=count+2;
+        
+        for(count=count;count<myArray.length; count++){
+            if(count%2!=0){
+                 myArray[count]="+";    
+            }
+            else
+            myArray[count]="0";
+            
+        }
+        System.out.println("Its HERE 1");
+        check();
+        
+        for(k=0; k<myArray.length ;k++){
+            
+            if(myArray[k].equals("/")){
+                
+                a=Double.parseDouble(String.valueOf(myArray[k-1]));
+                b=Double.parseDouble(String.valueOf(myArray[k+1]));
+                myArray[k-1]=String.valueOf(a/b);
+                
+                for(int i=k; i<(myArray.length-2); i=i+2){
+                    myArray[i]=myArray[i+2];
+                    myArray[i+1]=myArray[i+3];
+                    
+                }
+                
+                myArray[myArray.length-2]="+";
+                myArray[myArray.length-1]="0";
+                if(myArray[k].equals("/")){
+                    k=k-1;
+                }
+                check();
+            }
+            
+        }
+        
+        for(k=0; k<myArray.length; k++){
+            if(myArray[k].equals("*")){
+                a=Double.parseDouble(String.valueOf(myArray[k-1]));
+                b=Double.parseDouble(String.valueOf(myArray[k+1]));
+                myArray[k-1]=String.valueOf(a*b);
+                
+                for(int i=k; i<(myArray.length-2);i=i+2){
+                    myArray[i]=myArray[i+2];
+                    myArray[i+1]=myArray[i+3];
+                }
+                
+                myArray[myArray.length-2]="+";
+                myArray[myArray.length-1]="0";
+                if(myArray[k].equals("*")){
+                    k=k-1;
+                }
+                
+                check();
+            }
+            
+        }
+        
+        
+        
+        double res=Double.parseDouble(String.valueOf(myArray[0]));
+        
+        for(int i=0;i<myArray.length;i=i+2){
+            if(myArray[i+2].equals("0"))
+            break;
+            a=Double.parseDouble(String.valueOf(myArray[i+2]));
+            
+            if(myArray[i+1].equals("+")){
+                res=res+a;
+                System.out.println(res);
+                check();
+                
+            }
+            else{
+                
+                res=res-a;
+                System.out.println(res);
+                check();
+            }
+            
+        }
+        textField.setText(String.valueOf(res));
+       
+       
+   }
+   public void check(){
+       for(int i=0;i<myArray.length;i++){
+            System.out.print(myArray[i]);
+        }
+        System.out.println();
+    }
+}   
+
